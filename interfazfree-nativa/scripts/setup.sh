@@ -70,6 +70,7 @@ mysql -e "FLUSH PRIVILEGES;"
 
 echo "Instalando dependencias de Laravel..."
 cd "$PROJECT_DIR"
+export COMPOSER_ALLOW_SUPERUSER=1
 composer install --no-interaction --optimize-autoloader
 
 echo "Configurando archivo .env..."
