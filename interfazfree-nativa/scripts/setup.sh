@@ -13,7 +13,14 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+DETECTED_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+# Usar /var/www como directorio recomendado para producción
+if [ ! -d "/var/www/interfazfree" ]; then
+    PROJECT_DIR="$DETECTED_DIR"
+else
+    PROJECT_DIR="/var/www/interfazfree/interfazfree-nativa"
+fi
 
 echo "Directorio del proyecto detectado: $PROJECT_DIR"
 echo ""

@@ -23,7 +23,40 @@ class FichaResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('username')
+                    ->label('Usuario')
+                    ->required()
+                    ->maxLength(64)
+                    ->unique(ignoreRecord: true),
+                Forms\Components\TextInput::make('password')
+                    ->label('Contraseña')
+                    ->required()
+                    ->maxLength(64),
+                Forms\Components\Select::make('estado')
+                    ->label('Estado')
+                    ->options([
+                        'sin_usar' => 'Sin Usar',
+                        'activa' => 'Activa',
+                        'caducada' => 'Caducada',
+                    ])
+                    ->default('sin_usar')
+                    ->required(),
+                Forms\Components\Select::make('perfil_id')
+                    ->label('Perfil')
+                    ->relationship('perfil', 'nombre')
+                    ->required(),
+                Forms\Components\Select::make('lote_id')
+                    ->label('Lote')
+                    ->relationship('lote', 'nombre')
+                    ->nullable(),
+                Forms\Components\DateTimePicker::make('fecha_inicio')
+                    ->label('Fecha de Inicio'),
+                Forms\Components\DateTimePicker::make('fecha_expiracion')
+                    ->label('Fecha de Expiración'),
+                Forms\Components\Textarea::make('observaciones')
+                    ->label('Observaciones')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -31,7 +64,34 @@ class FichaResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('username')
+                    ->label('Usuario')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('estado')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'sin_usar' => 'gray',
+                        'activa' => 'success',
+                        'caducada' => 'danger',
+                    })
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('perfil.nombre')
+                    ->label('Perfil')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('lote.nombre')
+                    ->label('Lote')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('fecha_expiracion')
+                    ->label('Expiración')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Creada')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

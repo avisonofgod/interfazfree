@@ -24,52 +24,47 @@ Panel administrativo para FreeRADIUS desarrollado con Laravel 10 + Filament 3, d
 
 ## 🚀 Instalación
 
-### Instalación Completa Automática
+### Instalación en VPS/Servidor (Producción)
 
-**Importante**: Todos los comandos deben ejecutarse desde el directorio `interfazfree-nativa` dentro del repositorio clonado.
+**Ruta recomendada**: `/var/www/interfazfree/` (facilita automatización y permisos)
 
-El script de instalación ahora soporta dos modos de despliegue:
-
-#### 1. Instalación para Desarrollo (localhost)
 ```bash
-cd /root/interfazfree/interfazfree-nativa
-sudo make setup
-# Seleccionar opción 1 cuando se solicite
-```
+# 1. Clonar el repositorio (important-comment)
+sudo mkdir -p /var/www
+cd /var/www
+sudo git clone https://github.com/avisonofgod/interfazfree.git
+cd interfazfree/interfazfree-nativa
 
-Esto configurará:
-- Servidor de desarrollo en localhost
-- APP_ENV=local, APP_DEBUG=true
-- Sin configuración de Nginx (usar `php artisan serve`)
-
-#### 2. Instalación para Producción (VPS con IP pública)
-```bash
-cd /root/interfazfree/interfazfree-nativa
-sudo make setup
-# Seleccionar opción 2 cuando se solicite
-# Ingresar IP pública o dominio (ej: 192.168.1.100 o ejemplo.com)
-# Opcionalmente configurar SSL/HTTPS
-```
-
-Esto configurará:
-- Nginx con PHP-FPM para producción
-- APP_ENV=production, APP_DEBUG=false
-- APP_URL con la IP/dominio proporcionado
-- Servidor accesible desde la red
-- Opción para configurar SSL con Let's Encrypt
-
-**Ejemplo de instalación en VPS:**
-```bash
-cd /root/interfazfree/interfazfree-nativa
+# 2. Ejecutar instalación completa (important-comment)
 sudo bash scripts/setup.sh
-# Opción: 2
-# IP/Dominio: 192.168.1.100
-# SSL: N (o S si tiene dominio válido)
+# Seleccionar opción 2 para producción
+# Ingresar IP pública o dominio
+
+# 3. Acceder al panel (important-comment)
+# http://TU_IP_PUBLICA/admin
+```
+
+### Instalación para Desarrollo (localhost)
+
+```bash
+# 1. Clonar el repositorio (important-comment)
+git clone https://github.com/avisonofgod/interfazfree.git
+cd interfazfree/interfazfree-nativa
+
+# 2. Ejecutar instalación (important-comment)
+sudo bash scripts/setup.sh
+# Seleccionar opción 1 para desarrollo
+
+# 3. Iniciar servidor de desarrollo (important-comment)
+php artisan serve
+
+# 4. Acceder al panel (important-comment)
+# http://localhost:8000/admin
 ```
 
 **Configurar Nginx manualmente (opcional):**
 ```bash
-cd /root/interfazfree/interfazfree-nativa
+cd /var/www/interfazfree/interfazfree-nativa
 sudo bash scripts/configure-nginx.sh
 ```
 
@@ -85,7 +80,9 @@ Este comando ejecutará:
 
 1. **Clonar el repositorio**
 ```bash
-git clone https://github.com/avisonofgod/interfazfree.git
+sudo mkdir -p /var/www
+cd /var/www
+sudo git clone https://github.com/avisonofgod/interfazfree.git
 cd interfazfree/interfazfree-nativa
 ```
 
@@ -224,6 +221,86 @@ sudo certbot --nginx -d tu-dominio.com
 ```
 
 Certbot configurará automáticamente Nginx para HTTPS y renovará el certificado automáticamente.
+
+## 🔧 Solución de Problemas
+
+### Error "File not found" en Nginx
+
+Si al acceder a `http://TU_IP/admin` aparece el error "File not found", las causas más comunes son:
+
+**1. Ruta de instalación incorrecta**
+
+El proyecto debe estar en `/var/www/interfazfree/interfazfree-nativa` (recomendado) o actualizar la configuración de Nginx:
+
+```bash
+# Verificar que Nginx apunta al directorio correcto (important-comment)
+sudo cat /etc/nginx/sites-available/interfazfree | grep root
+# Debe mostrar: root /var/www/interfazfree/interfazfree-nativa/public;
+```
+
+**2. Permisos de archivos incorrectos**
+
+```bash
+cd /var/www/interfazfree/interfazfree-nativa
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+sudo systemctl restart php8.2-fpm nginx
+```
+
+**3. Verificar logs de Nginx**
+
+```bash
+sudo tail -f /var/log/nginx/error.log
+```
+
+**Solución completa:**
+
+Si instalaste en una ruta diferente a `/var/www`, reconfigura Nginx:
+
+```bash
+cd /tu/ruta/interfazfree/interfazfree-nativa
+sudo bash scripts/configure-nginx.sh
+# Ingresa la ruta correcta cuando se solicite
+```
+
+### Panel de Administración Vacío o Sin Recursos
+
+Si el panel carga pero no muestra recursos o formularios:
+
+```bash
+cd /var/www/interfazfree/interfazfree-nativa
+php artisan config:clear
+php artisan cache:clear
+php artisan filament:cache-components
+sudo systemctl restart php8.2-fpm
+```
+
+### Problemas de Base de Datos
+
+**Verificar conexión:**
+```bash
+cd /var/www/interfazfree/interfazfree-nativa
+php artisan tinker
+>>> DB::connection()->getPdo();
+# Debe retornar objeto PDO sin errores
+```
+
+**Re-ejecutar migraciones:**
+```bash
+php artisan migrate:fresh --seed
+```
+
+### Verificar Estado de Servicios
+
+```bash
+# Estado de servicios (important-comment)
+sudo systemctl status nginx
+sudo systemctl status php8.2-fpm
+sudo systemctl status mariadb
+
+# Reiniciar servicios si es necesario (important-comment)
+sudo systemctl restart nginx php8.2-fpm mariadb
+```
 
 ## 📡 Integración con FreeRADIUS
 

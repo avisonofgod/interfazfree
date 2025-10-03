@@ -13,7 +13,14 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-DEFAULT_PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+DETECTED_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+# Usar /var/www como directorio recomendado (important-comment)
+if [ -d "/var/www/interfazfree/interfazfree-nativa" ]; then
+    DEFAULT_PROJECT_DIR="/var/www/interfazfree/interfazfree-nativa"
+else
+    DEFAULT_PROJECT_DIR="$DETECTED_DIR"
+fi
 
 read -p "Ingrese la IP pública o dominio: " PUBLIC_HOST
 read -p "Ingrese la ruta del proyecto [$DEFAULT_PROJECT_DIR]: " PROJECT_PATH
@@ -79,6 +86,7 @@ systemctl enable php8.2-fpm
 echo "Actualizando APP_URL en .env..."
 cd ${PROJECT_PATH}
 sed -i "s|APP_URL=.*|APP_URL=http://${PUBLIC_HOST}|" .env
+
 php artisan config:clear
 php artisan config:cache
 

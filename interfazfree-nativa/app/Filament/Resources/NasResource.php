@@ -23,7 +23,46 @@ class NasResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('nombre')
+                    ->label('Nombre')
+                    ->required()
+                    ->maxLength(100),
+                Forms\Components\TextInput::make('shortname')
+                    ->label('Nombre Corto')
+                    ->required()
+                    ->maxLength(32),
+                Forms\Components\Select::make('tipo')
+                    ->label('Tipo')
+                    ->options([
+                        'mikrotik' => 'Mikrotik',
+                        'opnsense' => 'OPNsense',
+                        'other' => 'Otro',
+                    ])
+                    ->required(),
+                Forms\Components\TextInput::make('ip')
+                    ->label('Dirección IP')
+                    ->required()
+                    ->maxLength(15)
+                    ->rule('ip'),
+                Forms\Components\TextInput::make('puerto')
+                    ->label('Puerto')
+                    ->numeric()
+                    ->default(1812)
+                    ->minValue(1)
+                    ->maxValue(65535),
+                Forms\Components\TextInput::make('secreto')
+                    ->label('Secreto RADIUS')
+                    ->required()
+                    ->maxLength(60)
+                    ->password()
+                    ->revealable(),
+                Forms\Components\Toggle::make('activo')
+                    ->label('Activo')
+                    ->default(true),
+                Forms\Components\Textarea::make('descripcion')
+                    ->label('Descripción')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -31,7 +70,27 @@ class NasResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('nombre')
+                    ->label('Nombre')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('shortname')
+                    ->label('Nombre Corto')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('ip')
+                    ->label('IP')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('puerto')
+                    ->label('Puerto')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tipo')
+                    ->label('Tipo')
+                    ->badge()
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('activo')
+                    ->label('Activo')
+                    ->boolean()
+                    ->sortable(),
             ])
             ->filters([
                 //

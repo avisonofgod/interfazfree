@@ -23,7 +23,44 @@ class LoteResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('nombre')
+                    ->label('Nombre del Lote')
+                    ->required()
+                    ->maxLength(100),
+                Forms\Components\TextInput::make('cantidad')
+                    ->label('Cantidad de Fichas')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1)
+                    ->default(10),
+                Forms\Components\TextInput::make('longitud_password')
+                    ->label('Longitud de Contraseña')
+                    ->required()
+                    ->numeric()
+                    ->minValue(4)
+                    ->maxValue(32)
+                    ->default(8),
+                Forms\Components\Select::make('tipo_password')
+                    ->label('Tipo de Contraseña')
+                    ->options([
+                        'alfanumerico' => 'Alfanumérico',
+                        'numerico' => 'Numérico',
+                        'alfabetico' => 'Alfabético',
+                    ])
+                    ->default('alfanumerico')
+                    ->required(),
+                Forms\Components\Select::make('perfil_id')
+                    ->label('Perfil')
+                    ->relationship('perfil', 'nombre')
+                    ->required(),
+                Forms\Components\Select::make('nas_id')
+                    ->label('NAS')
+                    ->relationship('nas', 'nombre')
+                    ->required(),
+                Forms\Components\Textarea::make('descripcion')
+                    ->label('Descripción')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -31,7 +68,24 @@ class LoteResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('nombre')
+                    ->label('Nombre')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('cantidad')
+                    ->label('Cantidad')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('perfil.nombre')
+                    ->label('Perfil')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('nas.nombre')
+                    ->label('NAS')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Creado')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 //

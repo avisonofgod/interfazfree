@@ -23,7 +23,39 @@ class PerfilResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('nombre')
+                    ->label('Nombre')
+                    ->required()
+                    ->maxLength(100),
+                Forms\Components\Select::make('tipo')
+                    ->label('Tipo')
+                    ->options([
+                        'corrido' => 'Corrido',
+                        'pausado' => 'Pausado',
+                        'recurrente' => 'Recurrente',
+                    ])
+                    ->required(),
+                Forms\Components\TextInput::make('velocidad_subida')
+                    ->label('Velocidad de Subida')
+                    ->maxLength(50),
+                Forms\Components\TextInput::make('velocidad_bajada')
+                    ->label('Velocidad de Bajada')
+                    ->maxLength(50),
+                Forms\Components\TextInput::make('tiempo_vigencia')
+                    ->label('Tiempo de Vigencia (días)')
+                    ->numeric()
+                    ->minValue(1),
+                Forms\Components\TextInput::make('precio')
+                    ->label('Precio')
+                    ->numeric()
+                    ->prefix('$'),
+                Forms\Components\Toggle::make('activo')
+                    ->label('Activo')
+                    ->default(true),
+                Forms\Components\Textarea::make('descripcion')
+                    ->label('Descripción')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -31,7 +63,28 @@ class PerfilResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('nombre')
+                    ->label('Nombre')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tipo')
+                    ->label('Tipo')
+                    ->badge()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('precio')
+                    ->label('Precio')
+                    ->money('MXN')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('velocidad_subida')
+                    ->label('Vel. Subida')
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('velocidad_bajada')
+                    ->label('Vel. Bajada')
+                    ->toggleable(),
+                Tables\Columns\IconColumn::make('activo')
+                    ->label('Activo')
+                    ->boolean()
+                    ->sortable(),
             ])
             ->filters([
                 //
