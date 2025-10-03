@@ -95,14 +95,31 @@ mysql -e "CREATE USER IF NOT EXISTS 'interfazfree'@'localhost' IDENTIFIED BY 'in
 mysql -e "GRANT ALL PRIVILEGES ON interfazfree_db.* TO 'interfazfree'@'localhost';"
 mysql -e "FLUSH PRIVILEGES;"
 
+echo "Configurando permisos iniciales..."
+if [ "$APP_USER" != "www-data" ]; then
+    echo "Asignando propiedad del proyecto a $APP_USER..."
+    chown -R $APP_USER:$APP_GROUP "$PROJECT_DIR"
+    chmod -R 755 "$PROJECT_DIR"
+fi
+
 echo "Instalando dependencias de Laravel..."
 cd "$PROJECT_DIR"
-composer install --no-interaction --optimize-autoloader
+
+if [ "$APP_USER" != "www-data" ]; then
+    echo "Ejecutando composer como usuario $APP_USER..."
+    sudo -u $APP_USER composer install --no-interaction --optimize-autoloader
+else
+    composer install --no-interaction --optimize-autoloader
+fi
 
 echo "Configurando archivo .env..."
 if [ ! -f .env ]; then
     cp .env.example .env
-    php artisan key:generate
+    if [ "$APP_USER" != "www-data" ]; then
+        sudo -u $APP_USER php artisan key:generate
+    else
+        php artisan key:generate
+    fi
 fi
 
 sed -i "s|APP_URL=.*|APP_URL=${APP_URL}|" .env
@@ -113,21 +130,22 @@ sed -i 's/DB_USERNAME=.*/DB_USERNAME=interfazfree/' .env
 sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=interfazfree_password/' .env
 
 echo "Ejecutando migraciones..."
-php artisan migrate --force
+if [ "$APP_USER" != "www-data" ]; then
+    sudo -u $APP_USER php artisan migrate --force
+else
+    php artisan migrate --force
+fi
 
 echo "Ejecutando seeders..."
-php artisan db:seed --force
+if [ "$APP_USER" != "www-data" ]; then
+    sudo -u $APP_USER php artisan db:seed --force
+else
+    php artisan db:seed --force
+fi
 
-echo "Configurando permisos..."
+echo "Configurando permisos finales..."
 chown -R $APP_USER:$APP_GROUP storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
-
-if [ "$APP_USER" != "www-data" ]; then
-    echo "Configurando permisos del proyecto para $APP_USER..."
-    chown -R $APP_USER:$APP_GROUP "$PROJECT_DIR"
-    chmod -R 755 "$PROJECT_DIR"
-    chmod -R 775 "$PROJECT_DIR/storage" "$PROJECT_DIR/bootstrap/cache"
-fi
 
 if [ "$INSTALL_TYPE" == "2" ]; then
     echo "Configurando Nginx para producción..."
@@ -193,6 +211,15 @@ EOF
     ln -sf /etc/nginx/sites-available/interfazfree /etc/nginx/sites-enabled/
     rm -f /etc/nginx/sites-enabled/default
     
+    echo "Actualizando configuración de Laravel..."
+    if [ "$APP_USER" != "www-data" ]; then
+        sudo -u $APP_USER php artisan config:clear
+        sudo -u $APP_USER php artisan config:cache
+    else
+        php artisan config:clear
+        php artisan config:cache
+    fi
+    
     echo "Verificando configuración de Nginx..."
     nginx -t
     
@@ -212,9 +239,15 @@ EOF
 fi
 
 echo "Optimizando aplicación..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+if [ "$APP_USER" != "www-data" ]; then
+    sudo -u $APP_USER php artisan config:cache
+    sudo -u $APP_USER php artisan route:cache
+    sudo -u $APP_USER php artisan view:cache
+else
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+fi
 
 echo "================================"
 echo "Setup completado exitosamente!"
