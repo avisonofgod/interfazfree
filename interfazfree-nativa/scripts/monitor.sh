@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -d "/var/www/interfazfree/interfazfree-nativa" ]; then
+    PROJECT_DIR="/var/www/interfazfree/interfazfree-nativa"
+else
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+fi
+
 echo "================================"
 echo "InterfazFree Nativa - Monitor"
 echo "================================"
@@ -41,7 +48,7 @@ mysql -u interfazfree -pinterfazfree_password interfazfree_db -e "
 
 echo ""
 echo "Uso de disco:"
-df -h /root/interfazfree-nativa | tail -1 | awk '{print "Usado: " $3 " de " $2 " (" $5 ")"}'
+df -h $PROJECT_DIR | tail -1 | awk '{print "Usado: " $3 " de " $2 " (" $5 ")"}'
 
 echo ""
 echo "Últimas 5 autenticaciones RADIUS:"

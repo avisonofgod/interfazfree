@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -d "/var/www/interfazfree/interfazfree-nativa" ]; then
+    PROJECT_DIR="/var/www/interfazfree/interfazfree-nativa"
+else
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+fi
+
 echo "================================"
 echo "InterfazFree Nativa - Status"
 echo "================================"
@@ -49,13 +56,13 @@ echo "Carga: $(uptime | awk -F'load average:' '{print $2}')"
 echo ""
 echo "Uso de recursos:"
 free -h | grep "Mem:" | awk '{print "Memoria: " $3 " usado de " $2 " (" int($3/$2*100) "%)"}'
-df -h /root/interfazfree-nativa | tail -1 | awk '{print "Disco: " $3 " usado de " $2 " (" $5 ")"}'
+df -h $PROJECT_DIR | tail -1 | awk '{print "Disco: " $3 " usado de " $2 " (" $5 ")"}'
 
 echo ""
 echo "Versiones instaladas:"
 php -v | head -1
 mysql --version
-echo "Laravel: $(cd /root/interfazfree-nativa && php artisan --version)"
+echo "Laravel: $(cd $PROJECT_DIR && php artisan --version)"
 
 echo ""
 echo "Estadísticas de fichas:"

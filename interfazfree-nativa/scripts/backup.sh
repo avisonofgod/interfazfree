@@ -1,8 +1,14 @@
 #!/bin/bash
 
-BACKUP_DIR="/root/backups/interfazfree"
+if [ -d "/var/www/interfazfree/interfazfree-nativa" ]; then
+    PROJECT_DIR="/var/www/interfazfree/interfazfree-nativa"
+else
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+fi
+
+BACKUP_DIR="${HOME}/backups/interfazfree"
 DATE=$(date +%Y%m%d_%H%M%S)
-PROJECT_DIR="/root/interfazfree-nativa"
 
 echo "================================"
 echo "InterfazFree Nativa - Backup"
@@ -25,13 +31,15 @@ gzip "$BACKUP_DIR/db_backup_$DATE.sql"
 echo "✓ Backup comprimido: db_backup_$DATE.sql.gz"
 
 echo "Realizando backup de archivos de la aplicación..."
+PROJECT_PARENT="$(dirname "$PROJECT_DIR")"
+PROJECT_NAME="$(basename "$PROJECT_DIR")"
 tar -czf "$BACKUP_DIR/app_backup_$DATE.tar.gz" \
-    -C /root \
-    --exclude='interfazfree-nativa/vendor' \
-    --exclude='interfazfree-nativa/node_modules' \
-    --exclude='interfazfree-nativa/storage/logs/*.log' \
-    --exclude='interfazfree-nativa/.git' \
-    interfazfree-nativa
+    -C "$PROJECT_PARENT" \
+    --exclude="$PROJECT_NAME/vendor" \
+    --exclude="$PROJECT_NAME/node_modules" \
+    --exclude="$PROJECT_NAME/storage/logs/*.log" \
+    --exclude="$PROJECT_NAME/.git" \
+    "$PROJECT_NAME"
 
 if [ $? -eq 0 ]; then
     echo "✓ Backup de aplicación completado: app_backup_$DATE.tar.gz"

@@ -10,6 +10,13 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+if [ -d "/var/www/interfazfree/interfazfree-nativa" ]; then
+    PROJECT_DIR="/var/www/interfazfree/interfazfree-nativa"
+else
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+fi
+
 echo "Reiniciando servicios..."
 
 echo "Reiniciando MariaDB..."
@@ -38,7 +45,7 @@ fi
 
 echo ""
 echo "Limpiando caché de Laravel..."
-cd /root/interfazfree-nativa
+cd $PROJECT_DIR
 php artisan cache:clear
 php artisan config:clear
 php artisan route:clear

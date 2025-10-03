@@ -103,6 +103,15 @@ echo "Configurando permisos..."
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
+if [[ "$PROJECT_DIR" == /root/* ]]; then
+    echo "Detectada instalación en /root, ajustando permisos de traversal..."
+    chmod 755 /root
+    if [[ "$PROJECT_DIR" == /root/interfazfree/* ]]; then
+        chmod 755 /root/interfazfree
+    fi
+    chmod 755 "$PROJECT_DIR"
+fi
+
 if [ "$INSTALL_TYPE" == "2" ]; then
     echo "Configurando Nginx para producción..."
     

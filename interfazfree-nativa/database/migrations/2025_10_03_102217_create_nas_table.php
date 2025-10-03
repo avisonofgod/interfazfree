@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre')->unique();
             $table->string('shortname')->unique();
-            $table->enum('tipo', ['mikrotik', 'opnsense'])->default('mikrotik');
+            $table->enum('tipo', ['mikrotik', 'opnsense', 'other'])->default('mikrotik');
             $table->string('ip');
             $table->integer('puerto')->default(1812);
             $table->string('secreto');

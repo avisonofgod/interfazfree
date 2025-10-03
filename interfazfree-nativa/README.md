@@ -24,48 +24,72 @@ Panel administrativo para FreeRADIUS desarrollado con Laravel 10 + Filament 3, d
 
 ## 🚀 Instalación
 
-### Instalación en VPS/Servidor (Producción)
+### ⚡ Instalación con Un Solo Comando (Recomendado)
 
-**Ruta recomendada**: `/var/www/interfazfree/` (facilita automatización y permisos)
+**Para producción en VPS/Servidor:**
 
 ```bash
-# 1. Clonar el repositorio (important-comment)
+# 1. Clonar el repositorio en /var/www
 sudo mkdir -p /var/www
 cd /var/www
 sudo git clone https://github.com/avisonofgod/interfazfree.git
+
+# 2. Ejecutar instalador (UN SOLO COMANDO)
 cd interfazfree/interfazfree-nativa
-
-# 2. Ejecutar instalación completa (important-comment)
-sudo bash scripts/setup.sh
-# Seleccionar opción 2 para producción
-# Ingresar IP pública o dominio
-
-# 3. Acceder al panel (important-comment)
-# http://TU_IP_PUBLICA/admin
+sudo bash install.sh
 ```
 
-### Instalación para Desarrollo (localhost)
+El instalador hará automáticamente:
+- ✅ Verificar dependencias del sistema
+- ✅ Configurar base de datos con credenciales seguras
+- ✅ Instalar dependencias de Composer
+- ✅ Generar clave de aplicación
+- ✅ Ejecutar migraciones y seeders
+- ✅ Crear usuario administrador
+- ✅ Configurar Nginx con PHP-FPM
+- ✅ Establecer permisos correctos
+- ✅ Optimizar la aplicación
+- ✅ Verificar que todo funcione
+
+**Al finalizar verás:**
+```
+✓ Instalación Completada
+
+Acceso al panel de administración:
+  URL: http://TU_IP/admin
+  Usuario: admin@interfazfree.local
+  Contraseña: [generada automáticamente]
+
+⚠️ IMPORTANTE: Guarde estas credenciales en un lugar seguro
+```
+
+### 🔧 Instalación para Desarrollo (localhost)
 
 ```bash
-# 1. Clonar el repositorio (important-comment)
+# 1. Clonar y entrar al proyecto
 git clone https://github.com/avisonofgod/interfazfree.git
 cd interfazfree/interfazfree-nativa
 
-# 2. Ejecutar instalación (important-comment)
-sudo bash scripts/setup.sh
-# Seleccionar opción 1 para desarrollo
+# 2. Copiar .env y configurar
+cp .env.example .env
+# Editar .env con tus credenciales de base de datos
 
-# 3. Iniciar servidor de desarrollo (important-comment)
+# 3. Instalar dependencias y configurar
+composer install
+php artisan key:generate
+php artisan migrate:fresh --seed
+
+# 4. Crear usuario admin
+php artisan tinker
+>>> \App\Models\User::create(['name' => 'Admin', 'email' => 'admin@test.com', 'password' => bcrypt('admin123')])
+
+# 5. Iniciar servidor de desarrollo
 php artisan serve
 
-# 4. Acceder al panel (important-comment)
+# 6. Acceder al panel
 # http://localhost:8000/admin
-```
-
-**Configurar Nginx manualmente (opcional):**
-```bash
-cd /var/www/interfazfree/interfazfree-nativa
-sudo bash scripts/configure-nginx.sh
+# Usuario: admin@test.com
+# Contraseña: admin123
 ```
 
 Este comando ejecutará:
@@ -226,41 +250,45 @@ Certbot configurará automáticamente Nginx para HTTPS y renovará el certificad
 
 ### Error "File not found" en Nginx
 
-Si al acceder a `http://TU_IP/admin` aparece el error "File not found", las causas más comunes son:
+Si al acceder a `http://TU_IP/admin` aparece el error "File not found", el problema es que www-data no puede acceder a los archivos del proyecto.
 
-**1. Ruta de instalación incorrecta**
+**Causa más común: Instalación en /root**
 
-El proyecto debe estar en `/var/www/interfazfree/interfazfree-nativa` (recomendado) o actualizar la configuración de Nginx:
+Si instalaste en `/root/interfazfree/interfazfree-nativa`, www-data no puede acceder porque `/root` tiene permisos 700 por defecto.
 
+**Solución:**
 ```bash
-# Verificar que Nginx apunta al directorio correcto (important-comment)
-sudo cat /etc/nginx/sites-available/interfazfree | grep root
-# Debe mostrar: root /var/www/interfazfree/interfazfree-nativa/public;
+# Dar permisos de traversal a www-data (sin exponer el contenido de /root)
+sudo chmod 755 /root /root/interfazfree /root/interfazfree/interfazfree-nativa
+sudo systemctl restart nginx
 ```
 
-**2. Permisos de archivos incorrectos**
-
-```bash
-cd /var/www/interfazfree/interfazfree-nativa
-sudo chown -R www-data:www-data storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
-sudo systemctl restart php8.2-fpm nginx
-```
-
-**3. Verificar logs de Nginx**
-
+**Verificar logs de Nginx:**
 ```bash
 sudo tail -f /var/log/nginx/error.log
 ```
 
-**Solución completa:**
+**Verificar permisos:**
+```bash
+ls -la /root/interfazfree/interfazfree-nativa/public
+# Debe mostrar que www-data puede leer los archivos
+```
 
-Si instalaste en una ruta diferente a `/var/www`, reconfigura Nginx:
+**Verificar que Nginx apunta al directorio correcto:**
+```bash
+sudo cat /etc/nginx/sites-available/interfazfree | grep root
+# Debe mostrar: root /root/interfazfree/interfazfree-nativa/public;
+```
+
+**Solución alternativa (Recomendada para producción):**
+
+Reinstalar en `/var/www` para evitar problemas de permisos:
 
 ```bash
-cd /tu/ruta/interfazfree/interfazfree-nativa
-sudo bash scripts/configure-nginx.sh
-# Ingresa la ruta correcta cuando se solicite
+cd /var/www
+sudo git clone https://github.com/avisonofgod/interfazfree.git
+cd interfazfree/interfazfree-nativa
+sudo bash install.sh  # o scripts/setup.sh si usas la versión antigua
 ```
 
 ### Panel de Administración Vacío o Sin Recursos

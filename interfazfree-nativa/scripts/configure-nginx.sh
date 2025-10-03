@@ -87,6 +87,15 @@ echo "Actualizando APP_URL en .env..."
 cd ${PROJECT_PATH}
 sed -i "s|APP_URL=.*|APP_URL=http://${PUBLIC_HOST}|" .env
 
+if [[ "$PROJECT_PATH" == /root/* ]]; then
+    echo "Detectada instalación en /root, ajustando permisos de traversal..."
+    chmod 755 /root
+    if [[ "$PROJECT_PATH" == /root/interfazfree/* ]]; then
+        chmod 755 /root/interfazfree
+    fi
+    chmod 755 "$PROJECT_PATH"
+fi
+
 php artisan config:clear
 php artisan config:cache
 
