@@ -28,16 +28,20 @@ Panel administrativo para FreeRADIUS desarrollado con Laravel 10 + Filament 3, d
 
 **Importante**: Todos los comandos deben ejecutarse desde el directorio `interfazfree-nativa` dentro del repositorio clonado.
 
-El script de instalación ahora soporta dos modos de despliegue:
+El script de instalación ahora soporta:
+- **Dos opciones de usuario**: www-data (tradicional) o usuario dedicado 'interfazfree' (recomendado para producción)
+- **Dos modos de despliegue**: Desarrollo (localhost) y Producción (IP pública/dominio)
 
 #### 1. Instalación para Desarrollo (localhost)
 ```bash
 cd /root/interfazfree/interfazfree-nativa
 sudo make setup
-# Seleccionar opción 1 cuando se solicite
+# 1. Seleccionar usuario: 1 (www-data) o 2 (interfazfree - usuario dedicado)
+# 2. Seleccionar tipo instalación: 1 (desarrollo)
 ```
 
 Esto configurará:
+- Usuario del sistema (www-data o interfazfree según elección)
 - Servidor de desarrollo en localhost
 - APP_ENV=local, APP_DEBUG=true
 - Sin configuración de Nginx (usar `php artisan serve`)
@@ -46,23 +50,35 @@ Esto configurará:
 ```bash
 cd /root/interfazfree/interfazfree-nativa
 sudo make setup
-# Seleccionar opción 2 cuando se solicite
-# Ingresar IP pública o dominio (ej: 192.168.1.100 o ejemplo.com)
-# Opcionalmente configurar SSL/HTTPS
+# 1. Seleccionar usuario: 2 (interfazfree - RECOMENDADO para producción)
+# 2. Seleccionar tipo instalación: 2 (producción)
+# 3. Ingresar IP pública o dominio (ej: 192.168.1.100 o ejemplo.com)
+# 4. Opcionalmente configurar SSL/HTTPS
 ```
 
 Esto configurará:
+- Creación de usuario dedicado 'interfazfree' si se seleccionó opción 2
+- Pool PHP-FPM personalizado para el usuario seleccionado
 - Nginx con PHP-FPM para producción
 - APP_ENV=production, APP_DEBUG=false
 - APP_URL con la IP/dominio proporcionado
 - Servidor accesible desde la red
+- Permisos de archivos optimizados para seguridad
 - Opción para configurar SSL con Let's Encrypt
 
-**Ejemplo de instalación en VPS:**
+**Ventajas del usuario dedicado:**
+- ✅ Mayor seguridad (principio de menor privilegio)
+- ✅ Aislamiento de la aplicación del sistema
+- ✅ Facilita auditorías y troubleshooting
+- ✅ Mejor control de permisos de archivos
+- ✅ Pool PHP-FPM dedicado para mejor rendimiento
+
+**Ejemplo completo de instalación en VPS:**
 ```bash
 cd /root/interfazfree/interfazfree-nativa
 sudo bash scripts/setup.sh
-# Opción: 2
+# Usuario: 2 (crear usuario dedicado 'interfazfree')
+# Tipo instalación: 2 (producción)
 # IP/Dominio: 192.168.1.100
 # SSL: N (o S si tiene dominio válido)
 ```
@@ -225,6 +241,47 @@ sudo certbot --nginx -d tu-dominio.com
 
 Certbot configurará automáticamente Nginx para HTTPS y renovará el certificado automáticamente.
 
+## 👤 Gestión del Usuario Dedicado
+
+Si instalaste con el usuario dedicado 'interfazfree', aquí están los comandos útiles:
+
+**Cambiar al usuario interfazfree:**
+```bash
+sudo su - interfazfree
+```
+
+**Ejecutar comandos artisan como el usuario correcto:**
+```bash
+sudo -u interfazfree php artisan [comando]
+```
+
+**Verificar el usuario propietario de los archivos:**
+```bash
+ls -la /root/interfazfree/interfazfree-nativa
+```
+
+**Ver procesos PHP-FPM del usuario:**
+```bash
+ps aux | grep php-fpm | grep interfazfree
+```
+
+**Ver logs del pool PHP-FPM:**
+```bash
+sudo tail -f /var/log/php8.2-fpm.log
+```
+
+**Verificar configuración del pool PHP-FPM:**
+```bash
+sudo cat /etc/php/8.2/fpm/pool.d/interfazfree.conf
+```
+
+**Cambiar permisos si es necesario:**
+```bash
+sudo chown -R interfazfree:interfazfree /root/interfazfree/interfazfree-nativa
+sudo chmod -R 755 /root/interfazfree/interfazfree-nativa
+sudo chmod -R 775 /root/interfazfree/interfazfree-nativa/storage /root/interfazfree/interfazfree-nativa/bootstrap/cache
+```
+
 ## 📡 Integración con FreeRADIUS
 
 El sistema se integra directamente con las tablas de FreeRADIUS:
@@ -352,9 +409,14 @@ sudo bash scripts/configure-nginx.sh
 
 3. **Verificar permisos del directorio:**
 ```bash
-# Asegúrate que www-data pueda leer el directorio
+# Si usas www-data:
 sudo chmod -R 755 /ruta/a/tu/proyecto
 sudo chown -R www-data:www-data /ruta/a/tu/proyecto/storage /ruta/a/tu/proyecto/bootstrap/cache
+
+# Si usas usuario dedicado 'interfazfree':
+sudo chmod -R 755 /ruta/a/tu/proyecto
+sudo chown -R interfazfree:interfazfree /ruta/a/tu/proyecto
+sudo chmod -R 775 /ruta/a/tu/proyecto/storage /ruta/a/tu/proyecto/bootstrap/cache
 ```
 
 4. **Verificar que el archivo index.php existe:**

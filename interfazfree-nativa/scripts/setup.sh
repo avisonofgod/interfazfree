@@ -18,6 +18,33 @@ PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 echo "Directorio del proyecto detectado: $PROJECT_DIR"
 echo ""
 
+echo "Configuración de usuario del sistema:"
+echo "1) Usar usuario existente www-data (por defecto)"
+echo "2) Crear usuario dedicado 'interfazfree'"
+read -p "Opción [1-2]: " USER_OPTION
+
+if [ "$USER_OPTION" == "2" ]; then
+    APP_USER="interfazfree"
+    APP_GROUP="interfazfree"
+    
+    if ! id "$APP_USER" &>/dev/null; then
+        echo "Creando usuario $APP_USER..."
+        useradd -r -m -s /bin/bash -d /home/$APP_USER -c "InterfazFree Application User" $APP_USER
+        
+        usermod -a -G www-data $APP_USER
+        
+        echo "Usuario $APP_USER creado exitosamente"
+    else
+        echo "Usuario $APP_USER ya existe"
+    fi
+else
+    APP_USER="www-data"
+    APP_GROUP="www-data"
+fi
+
+echo "Usuario de la aplicación: $APP_USER"
+echo ""
+
 echo "Seleccione el tipo de instalación:"
 echo "1) Desarrollo (localhost)"
 echo "2) Producción (IP pública o dominio)"
@@ -92,11 +119,41 @@ echo "Ejecutando seeders..."
 php artisan db:seed --force
 
 echo "Configurando permisos..."
-chown -R www-data:www-data storage bootstrap/cache
+chown -R $APP_USER:$APP_GROUP storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
+
+if [ "$APP_USER" != "www-data" ]; then
+    echo "Configurando permisos del proyecto para $APP_USER..."
+    chown -R $APP_USER:$APP_GROUP "$PROJECT_DIR"
+    chmod -R 755 "$PROJECT_DIR"
+    chmod -R 775 "$PROJECT_DIR/storage" "$PROJECT_DIR/bootstrap/cache"
+fi
 
 if [ "$INSTALL_TYPE" == "2" ]; then
     echo "Configurando Nginx para producción..."
+    
+    if [ "$APP_USER" != "www-data" ]; then
+        echo "Configurando pool PHP-FPM para $APP_USER..."
+        
+        cat > /etc/php/8.2/fpm/pool.d/$APP_USER.conf << EOF
+[$APP_USER]
+user = $APP_USER
+group = $APP_GROUP
+listen = /var/run/php/php8.2-fpm-$APP_USER.sock
+listen.owner = $APP_USER
+listen.group = $APP_GROUP
+listen.mode = 0660
+pm = dynamic
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
+EOF
+        
+        PHP_FPM_SOCK="/var/run/php/php8.2-fpm-$APP_USER.sock"
+    else
+        PHP_FPM_SOCK="/var/run/php/php8.2-fpm.sock"
+    fi
     
     cat > /etc/nginx/sites-available/interfazfree << EOF
 server {
@@ -122,7 +179,7 @@ server {
     error_page 404 /index.php;
 
     location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_pass unix:${PHP_FPM_SOCK};
         fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
         include fastcgi_params;
     }
@@ -136,11 +193,14 @@ EOF
     ln -sf /etc/nginx/sites-available/interfazfree /etc/nginx/sites-enabled/
     rm -f /etc/nginx/sites-enabled/default
     
+    echo "Verificando configuración de Nginx..."
     nginx -t
-    systemctl restart nginx
-    systemctl enable nginx
+    
+    echo "Reiniciando servicios..."
     systemctl restart php8.2-fpm
     systemctl enable php8.2-fpm
+    systemctl restart nginx
+    systemctl enable nginx
     
     if [ "$USE_SSL" == "s" ] || [ "$USE_SSL" == "S" ]; then
         echo ""

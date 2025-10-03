@@ -20,6 +20,43 @@ read -p "Ingrese la ruta del proyecto [$DEFAULT_PROJECT_DIR]: " PROJECT_PATH
 PROJECT_PATH=${PROJECT_PATH:-$DEFAULT_PROJECT_DIR}
 
 echo ""
+echo "¿Qué usuario ejecuta la aplicación?"
+echo "1) www-data (por defecto)"
+echo "2) interfazfree (usuario dedicado)"
+read -p "Opción [1-2]: " USER_OPTION
+
+if [ "$USER_OPTION" == "2" ]; then
+    APP_USER="interfazfree"
+    PHP_FPM_SOCK="/var/run/php/php8.2-fpm-interfazfree.sock"
+    
+    if ! id "$APP_USER" &>/dev/null; then
+        echo "Error: El usuario $APP_USER no existe. Ejecute setup.sh primero."
+        exit 1
+    fi
+    
+    if [ ! -f /etc/php/8.2/fpm/pool.d/$APP_USER.conf ]; then
+        echo "Creando pool PHP-FPM para $APP_USER..."
+        cat > /etc/php/8.2/fpm/pool.d/$APP_USER.conf << EOF
+[$APP_USER]
+user = $APP_USER
+group = $APP_USER
+listen = $PHP_FPM_SOCK
+listen.owner = $APP_USER
+listen.group = $APP_USER
+listen.mode = 0660
+pm = dynamic
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
+EOF
+    fi
+else
+    APP_USER="www-data"
+    PHP_FPM_SOCK="/var/run/php/php8.2-fpm.sock"
+fi
+
+echo ""
 echo "Creando configuración de Nginx..."
 
 cat > /etc/nginx/sites-available/interfazfree << EOF
@@ -46,7 +83,7 @@ server {
     error_page 404 /index.php;
 
     location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_pass unix:${PHP_FPM_SOCK};
         fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
         include fastcgi_params;
         fastcgi_buffer_size 128k;
