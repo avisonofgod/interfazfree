@@ -136,27 +136,20 @@ echo "✓ Migraciones ejecutadas y datos iniciales creados"
 echo ""
 
 echo "Creando usuario administrador..."
-ADMIN_EMAIL="admin@interfazfree.local"
-ADMIN_PASSWORD=$(openssl rand -base64 12)
+ADMIN_PASSWORD=$(openssl rand -base64 12 | tr -d "=+/" | cut -c1-12)
 
 php artisan tinker --execute="
 \$user = \App\Models\User::firstOrCreate(
-    ['email' => '${ADMIN_EMAIL}'],
+    ['email' => 'admin@interfazfree.local'],
     [
         'name' => 'Administrador',
         'password' => bcrypt('${ADMIN_PASSWORD}')
     ]
 );
-if (\$user->wasRecentlyCreated) {
-    echo 'Usuario creado exitosamente';
-} else {
-    \$user->password = bcrypt('${ADMIN_PASSWORD}');
-    \$user->save();
-    echo 'Contraseña actualizada';
-}
-"
+echo 'Usuario creado: ' . \$user->email;
+" 2>&1 | grep -v "Psy Shell"
 
-echo "✓ Usuario administrador configurado"
+echo "✓ Usuario administrador creado"
 echo ""
 
 echo "Configurando permisos..."
@@ -252,10 +245,11 @@ echo "========================================"
 echo ""
 echo "Acceso al panel de administración:"
 echo "  URL: http://${PUBLIC_HOST}/admin"
-echo "  Usuario: ${ADMIN_EMAIL}"
+echo "  Usuario: admin@interfazfree.local"
 echo "  Contraseña: ${ADMIN_PASSWORD}"
 echo ""
 echo "⚠️  IMPORTANTE: Guarde estas credenciales en un lugar seguro"
+echo "⚠️  La contraseña se generó aleatoriamente por seguridad"
 echo ""
 echo "Base de datos:"
 echo "  Nombre: ${DB_NAME}"
@@ -277,7 +271,7 @@ Fecha de instalación: $(date)
 
 Panel de Administración:
   URL: http://${PUBLIC_HOST}/admin
-  Usuario: ${ADMIN_EMAIL}
+  Usuario: admin@interfazfree.local
   Contraseña: ${ADMIN_PASSWORD}
 
 Base de Datos:
