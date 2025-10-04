@@ -13,7 +13,7 @@ class Lote extends Model
         'nombre',
         'cantidad',
         'longitud_password',
-        'tipo_password',
+        'longitud_usuario',
         'perfil_id',
         'nas_id',
         'descripcion',
@@ -22,6 +22,7 @@ class Lote extends Model
     protected $casts = [
         'cantidad' => 'integer',
         'longitud_password' => 'integer',
+        'longitud_usuario' => 'integer',
     ];
 
     public function perfil()

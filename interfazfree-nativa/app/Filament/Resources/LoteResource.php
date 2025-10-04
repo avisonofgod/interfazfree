@@ -33,6 +33,13 @@ class LoteResource extends Resource
                     ->numeric()
                     ->minValue(1)
                     ->default(10),
+                Forms\Components\TextInput::make('longitud_usuario')
+                    ->label('Longitud de Usuario')
+                    ->required()
+                    ->numeric()
+                    ->minValue(4)
+                    ->maxValue(32)
+                    ->default(8),
                 Forms\Components\TextInput::make('longitud_password')
                     ->label('Longitud de Contraseña')
                     ->required()
@@ -40,15 +47,6 @@ class LoteResource extends Resource
                     ->minValue(4)
                     ->maxValue(32)
                     ->default(8),
-                Forms\Components\Select::make('tipo_password')
-                    ->label('Tipo de Contraseña')
-                    ->options([
-                        'alfanumerico' => 'Alfanumérico',
-                        'numerico' => 'Numérico',
-                        'alfabetico' => 'Alfabético',
-                    ])
-                    ->default('alfanumerico')
-                    ->required(),
                 Forms\Components\Select::make('perfil_id')
                     ->label('Perfil')
                     ->relationship('perfil', 'nombre')

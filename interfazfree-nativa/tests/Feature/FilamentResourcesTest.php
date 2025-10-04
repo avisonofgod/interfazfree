@@ -39,8 +39,8 @@ class FilamentResourcesTest extends TestCase
         $lote = Lote::create([
             'nombre' => 'Test Lote',
             'cantidad' => 10,
+            'longitud_usuario' => 8,
             'longitud_password' => 8,
-            'tipo_password' => 'alfanumerico',
             'perfil_id' => $perfil->id,
             'nas_id' => $nas->id,
         ]);
@@ -94,9 +94,9 @@ class FilamentResourcesTest extends TestCase
 
     public function test_perfil_seeder_creates_default_profiles()
     {
-        $this->assertDatabaseHas('perfils', ['nombre' => 'Corrido', 'tipo' => 'corrido']);
-        $this->assertDatabaseHas('perfils', ['nombre' => 'Pausado', 'tipo' => 'pausado']);
-        $this->assertDatabaseHas('perfils', ['nombre' => 'Recurrente', 'tipo' => 'recurrente']);
+        $this->assertDatabaseHas('perfils', ['nombre' => 'Corrido']);
+        $this->assertDatabaseHas('perfils', ['nombre' => 'Pausado']);
+        $this->assertDatabaseHas('perfils', ['nombre' => 'Recurrente']);
     }
 
     public function test_atributo_seeder_creates_default_attributes()

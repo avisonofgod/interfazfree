@@ -13,8 +13,8 @@ class LoteFactory extends Factory
         return [
             'nombre' => $this->faker->words(3, true),
             'cantidad' => $this->faker->numberBetween(10, 100),
+            'longitud_usuario' => 8,
             'longitud_password' => 8,
-            'tipo_password' => 'alfanumerico',
             'perfil_id' => Perfil::factory(),
             'nas_id' => Nas::factory(),
         ];

@@ -11,25 +11,25 @@ class AtributoSeeder extends Seeder
 {
     public function run(): void
     {
-        $atributosPorTipo = [
-            'corrido' => [
+        $atributosPorPerfil = [
+            'Corrido' => [
                 ['nombre' => 'Fall-Through', 'operador' => ':=', 'valor' => 'Yes', 'tipo' => 'check'],
                 ['nombre' => 'Simultaneous-Use', 'operador' => ':=', 'valor' => '1', 'tipo' => 'check'],
                 ['nombre' => 'Access-Period', 'operador' => ':=', 'valor' => '86400', 'tipo' => 'reply'],
             ],
-            'pausado' => [
+            'Pausado' => [
                 ['nombre' => 'Fall-Through', 'operador' => ':=', 'valor' => 'Yes', 'tipo' => 'check'],
                 ['nombre' => 'Simultaneous-Use', 'operador' => ':=', 'valor' => '1', 'tipo' => 'check'],
                 ['nombre' => 'Max-All-Session', 'operador' => ':=', 'valor' => '86400', 'tipo' => 'reply'],
             ],
-            'recurrente' => [
+            'Recurrente' => [
                 ['nombre' => 'Fall-Through', 'operador' => ':=', 'valor' => 'Yes', 'tipo' => 'check'],
                 ['nombre' => 'Simultaneous-Use', 'operador' => ':=', 'valor' => '1', 'tipo' => 'check'],
             ],
         ];
 
-        foreach ($atributosPorTipo as $tipo => $atributos) {
-            $perfil = Perfil::where('tipo', $tipo)->first();
+        foreach ($atributosPorPerfil as $nombrePerfil => $atributos) {
+            $perfil = Perfil::where('nombre', $nombrePerfil)->first();
             
             if ($perfil) {
                 foreach ($atributos as $atributo) {

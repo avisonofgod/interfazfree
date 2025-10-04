@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('perfils', function (Blueprint $table) {
             $table->id();
             $table->string('nombre')->unique();
-            $table->enum('tipo', ['corrido', 'pausado', 'recurrente'])->default('pausado');
+            $table->enum('tipo', ['corrido', 'pausado', 'recurrente'])->nullable();
             $table->text('descripcion')->nullable();
             $table->string('velocidad_subida')->nullable();
             $table->string('velocidad_bajada')->nullable();
