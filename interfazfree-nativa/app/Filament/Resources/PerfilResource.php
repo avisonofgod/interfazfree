@@ -18,6 +18,8 @@ class PerfilResource extends Resource
     protected static ?string $model = Perfil::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    
+    protected static ?int $navigationSort = 40;
 
     public static function form(Form $form): Form
     {

@@ -18,6 +18,8 @@ class FichaResource extends Resource
     protected static ?string $model = Ficha::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {
@@ -55,6 +57,17 @@ class FichaResource extends Resource
                     ->label('Usuario')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('password')
+                    ->label('Contraseña')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('perfil.nombre')
+                    ->label('Perfil')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tiempo_usado')
+                    ->label('Usado')
+                    ->formatStateUsing(fn ($state) => gmdate('H:i:s', $state))
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('estado')
                     ->label('Estado')
                     ->badge()
@@ -64,24 +77,19 @@ class FichaResource extends Resource
                         'caducada' => 'danger',
                     })
                     ->sortable(),
-                Tables\Columns\TextColumn::make('perfil.nombre')
-                    ->label('Perfil')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('lote.nombre')
-                    ->label('Lote')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('fecha_expiracion')
-                    ->label('Expiración')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Creada')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('usuario')
+                    ->form([
+                        Forms\Components\TextInput::make('username')
+                            ->label('Usuario'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['username'],
+                            fn (Builder $query, $username): Builder => $query->where('username', 'like', "%{$username}%")
+                        );
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

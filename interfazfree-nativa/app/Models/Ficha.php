@@ -69,4 +69,9 @@ class Ficha extends Model
 
         return $this->estado;
     }
+    
+    public function getTiempoUsadoAttribute()
+    {
+        return $this->radacct()->sum('acctsessiontime') ?? 0;
+    }
 }
