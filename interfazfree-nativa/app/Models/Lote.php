@@ -11,6 +11,7 @@ class Lote extends Model
 
     protected $fillable = [
         'nombre',
+        'descripcion',
         'cantidad',
         'longitud_password',
         'longitud_usuario',

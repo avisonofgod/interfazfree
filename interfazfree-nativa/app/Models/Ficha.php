@@ -16,6 +16,7 @@ class Ficha extends Model
         'estado',
         'fecha_inicio',
         'fecha_expiracion',
+        'observaciones',
         'perfil_id',
         'lote_id',
     ];

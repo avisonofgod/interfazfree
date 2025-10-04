@@ -42,6 +42,10 @@ class FichaResource extends Resource
                     ->label('Lote')
                     ->relationship('lote', 'nombre')
                     ->nullable(),
+                Forms\Components\Textarea::make('observaciones')
+                    ->label('Observaciones')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 

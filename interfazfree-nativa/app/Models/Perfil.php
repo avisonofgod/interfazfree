@@ -12,6 +12,7 @@ class Perfil extends Model
     protected $fillable = [
         'nombre',
         'tipo',
+        'descripcion',
         'velocidad_subida',
         'velocidad_bajada',
         'tiempo_vigencia',

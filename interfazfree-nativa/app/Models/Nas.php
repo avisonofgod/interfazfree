@@ -15,6 +15,7 @@ class Nas extends Model
         'nombre',
         'shortname',
         'tipo',
+        'descripcion',
         'ip',
         'puerto',
         'secreto',

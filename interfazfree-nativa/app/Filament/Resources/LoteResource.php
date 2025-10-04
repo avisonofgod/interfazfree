@@ -43,6 +43,10 @@ class LoteResource extends Resource
                     ->label('NAS')
                     ->relationship('nas', 'nombre')
                     ->nullable(),
+                Forms\Components\Textarea::make('descripcion')
+                    ->label('Descripción')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 

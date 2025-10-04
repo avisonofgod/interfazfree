@@ -61,6 +61,10 @@ class NasResource extends Resource
                 Forms\Components\Toggle::make('activo')
                     ->label('Activo')
                     ->default(true),
+                Forms\Components\Textarea::make('descripcion')
+                    ->label('Descripción')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 

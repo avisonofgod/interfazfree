@@ -15,6 +15,7 @@ class Atributo extends Model
         'operador',
         'valor',
         'tipo',
+        'descripcion',
     ];
 
     public function perfil()
