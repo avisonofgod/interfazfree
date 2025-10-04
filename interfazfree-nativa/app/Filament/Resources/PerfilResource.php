@@ -101,6 +101,7 @@ class PerfilResource extends Resource
                             ->defaultItems(0)
                             ->addActionLabel('Add Attribute')
                             ->collapsible()
+                            ->collapsed()
                             ->itemLabel(fn (array $state): ?string => $state['nombre'] ?? null),
                     ])
                     ->collapsible(),

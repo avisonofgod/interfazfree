@@ -41,12 +41,17 @@ class FichaResource extends Resource
                     ->relationship('perfil', 'nombre')
                     ->required()
                     ->live()
-                    ->afterStateUpdated(function (Set $set) {
-                        $set('wispr_terminate_time', null);
+                    ->afterStateUpdated(function (Set $set, $state) {
+                        $perfil = \App\Models\Perfil::find($state);
+                        if ($perfil && $perfil->tipo === 'recurrente') {
+                            $set('wispr_terminate_time', '2026-01-02T20:00:00');
+                        } else {
+                            $set('wispr_terminate_time', null);
+                        }
                     }),
                 Forms\Components\DateTimePicker::make('wispr_terminate_time')
                     ->label('WISPr-Session-Terminate-Time')
-                    ->default(now()->addDay()->setTime(20, 0, 0))
+                    ->default('2026-01-02T20:00:00')
                     ->seconds(false)
                     ->helperText('Fecha y hora de terminación de sesión (formato ISO 8601)')
                     ->visible(fn (Get $get): bool => 
@@ -82,6 +87,7 @@ class FichaResource extends Resource
                             ->defaultItems(0)
                             ->addActionLabel('Add Attribute')
                             ->collapsible()
+                            ->collapsed()
                             ->itemLabel(fn (array $state): ?string => $state['attribute'] ?? null)
                     ])
                     ->hidden(fn ($record) => $record === null)

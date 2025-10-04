@@ -22,6 +22,8 @@ class ConfigResource extends Resource
     protected static ?string $navigationLabel = 'Config';
     
     protected static ?int $navigationSort = 50;
+    
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {
