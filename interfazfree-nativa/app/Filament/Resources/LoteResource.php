@@ -32,7 +32,7 @@ class LoteResource extends Resource
                     ->required()
                     ->numeric()
                     ->minValue(1)
-                    ->default(10),
+                    ->default(156),
                 Forms\Components\TextInput::make('longitud_usuario')
                     ->label('Longitud de Usuario')
                     ->required()
@@ -54,7 +54,7 @@ class LoteResource extends Resource
                 Forms\Components\Select::make('nas_id')
                     ->label('NAS')
                     ->relationship('nas', 'nombre')
-                    ->required(),
+                    ->nullable(),
                 Forms\Components\Textarea::make('descripcion')
                     ->label('Descripción')
                     ->maxLength(255)
