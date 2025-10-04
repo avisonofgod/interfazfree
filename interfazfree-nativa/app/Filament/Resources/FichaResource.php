@@ -91,6 +91,7 @@ class FichaResource extends Resource
                         );
                     }),
             ])
+            ->defaultPaginationPageOption(50)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
