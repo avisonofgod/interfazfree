@@ -90,9 +90,29 @@ class FichaResource extends Resource
                             ->collapsible()
                             ->collapsed()
                             ->hidden(fn ($record) => !$record || !$record->perfil || $record->perfil->atributos->isEmpty()),
-                        Forms\Components\Section::make('Atributos Personalizados (Radreply)')
-                            ->description('Atributos reply específicos de este usuario')
+                        Forms\Components\Section::make('Atributos Personalizados')
+                            ->description('Atributos específicos de este usuario (Check y Reply)')
                             ->schema([
+                                Forms\Components\Repeater::make('radcheck')
+                                    ->relationship('radcheck')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('attribute')
+                                            ->label('Attribute')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('op')
+                                            ->label('Op')
+                                            ->default(':=')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('value')
+                                            ->label('Value')
+                                            ->required(),
+                                    ])
+                                    ->columns(3)
+                                    ->defaultItems(0)
+                                    ->addActionLabel('Add Check Attribute')
+                                    ->collapsible()
+                                    ->collapsed()
+                                    ->itemLabel(fn (array $state): ?string => ($state['attribute'] ?? null) . ' (check)'),
                                 Forms\Components\Repeater::make('radreply')
                                     ->relationship('radreply')
                                     ->schema([
@@ -109,15 +129,14 @@ class FichaResource extends Resource
                                     ])
                                     ->columns(3)
                                     ->defaultItems(0)
-                                    ->addActionLabel('Add Attribute')
+                                    ->addActionLabel('Add Reply Attribute')
                                     ->collapsible()
                                     ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => $state['attribute'] ?? null)
+                                    ->itemLabel(fn (array $state): ?string => ($state['attribute'] ?? null) . ' (reply)'),
                             ])
                             ->collapsible()
                             ->collapsed(),
                     ])
-                    ->hidden(fn ($record) => $record === null)
                     ->collapsible()
                     ->collapsed(),
             ]);
