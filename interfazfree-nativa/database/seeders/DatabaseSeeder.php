@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             PerfilSeeder::class,
             AtributoSeeder::class,
             UserSeeder::class,
+            ConfigSeeder::class,
         ]);
     }
 }

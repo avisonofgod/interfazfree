@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('longitud_password')->default(8);
             $table->enum('tipo_password', ['numerico', 'alfanumerico', 'personalizado'])->default('alfanumerico');
             $table->foreignId('perfil_id')->constrained('perfils')->onDelete('cascade');
-            $table->foreignId('nas_id')->constrained('nas')->onDelete('cascade');
+            $table->foreignId('nas_id')->nullable()->constrained('nas')->onDelete('cascade');
             $table->text('descripcion')->nullable();
             $table->timestamps();
         });

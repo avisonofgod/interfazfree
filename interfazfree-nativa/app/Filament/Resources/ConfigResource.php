@@ -27,35 +27,21 @@ class ConfigResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Configuración de Base de Datos')
-                    ->schema([
-                        Forms\Components\TextInput::make('db_user')
-                            ->label('Usuario de BD')
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('db_password')
-                            ->label('Contraseña de BD')
-                            ->password()
-                            ->maxLength(255),
+                Forms\Components\TextInput::make('allowed_characters')
+                    ->label('Caracteres Permitidos')
+                    ->required()
+                    ->maxLength(255)
+                    ->default('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+                    ->helperText('Caracteres permitidos para generar usuarios y contraseñas'),
+                Forms\Components\Select::make('encryption_type')
+                    ->label('Tipo de Cifrado (DB Password Encryption Type)')
+                    ->options([
+                        'cleartext' => 'Cleartext (Sin Cifrado)',
+                        'bcrypt' => 'Bcrypt',
+                        'argon2' => 'Argon2',
                     ])
-                    ->columns(2),
-                
-                Forms\Components\Section::make('Configuración de Generación')
-                    ->schema([
-                        Forms\Components\TextInput::make('allowed_characters')
-                            ->label('Caracteres Permitidos')
-                            ->required()
-                            ->maxLength(255)
-                            ->helperText('Caracteres permitidos para generar usuarios y contraseñas'),
-                        Forms\Components\Select::make('encryption_type')
-                            ->label('Tipo de Cifrado')
-                            ->options([
-                                'bcrypt' => 'Bcrypt',
-                                'argon2' => 'Argon2',
-                                'plaintext' => 'Sin Cifrado (Texto Plano)',
-                            ])
-                            ->required(),
-                    ])
-                    ->columns(2),
+                    ->default('cleartext')
+                    ->required(),
             ]);
     }
 
@@ -63,15 +49,18 @@ class ConfigResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('db_user')
-                    ->label('Usuario BD')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('allowed_characters')
                     ->label('Caracteres Permitidos')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('encryption_type')
-                    ->label('Cifrado')
-                    ->badge(),
+                    ->label('Tipo de Cifrado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'cleartext' => 'gray',
+                        'bcrypt' => 'success',
+                        'argon2' => 'info',
+                        default => 'gray',
+                    }),
             ])
             ->filters([])
             ->actions([

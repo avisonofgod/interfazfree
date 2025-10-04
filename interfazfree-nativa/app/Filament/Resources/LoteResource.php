@@ -34,7 +34,7 @@ class LoteResource extends Resource
                     ->required()
                     ->numeric()
                     ->minValue(1)
-                    ->default(10),
+                    ->default(156),
                 Forms\Components\TextInput::make('longitud_usuario')
                     ->label('Longitud de Usuario')
                     ->required()
@@ -56,7 +56,7 @@ class LoteResource extends Resource
                 Forms\Components\Select::make('nas_id')
                     ->label('NAS')
                     ->relationship('nas', 'nombre')
-                    ->required(),
+                    ->nullable(),
                 Forms\Components\Textarea::make('descripcion')
                     ->label('Descripción')
                     ->maxLength(255)
@@ -91,6 +91,10 @@ class LoteResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('pdf')
+                    ->label('Imprimir PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->url(fn (Lote $record): string => route('lotes.pdf', $record)),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
