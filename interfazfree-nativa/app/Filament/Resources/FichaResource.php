@@ -7,8 +7,6 @@ use App\Filament\Resources\FichaResource\RelationManagers;
 use App\Models\Ficha;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -39,24 +37,7 @@ class FichaResource extends Resource
                 Forms\Components\Select::make('perfil_id')
                     ->label('Perfil')
                     ->relationship('perfil', 'nombre')
-                    ->required()
-                    ->live()
-                    ->afterStateUpdated(function (Set $set, $state) {
-                        $perfil = \App\Models\Perfil::find($state);
-                        if ($perfil && $perfil->tipo === 'recurrente') {
-                            $set('wispr_terminate_time', '2026-01-02T20:00:00');
-                        } else {
-                            $set('wispr_terminate_time', null);
-                        }
-                    }),
-                Forms\Components\DateTimePicker::make('wispr_terminate_time')
-                    ->label('WISPr-Session-Terminate-Time')
-                    ->default('2026-01-02T20:00:00')
-                    ->seconds(false)
-                    ->helperText('Fecha y hora de terminación de sesión (formato ISO 8601)')
-                    ->visible(fn (Get $get): bool => 
-                        \App\Models\Perfil::find($get('perfil_id'))?->tipo === 'recurrente'
-                    ),
+                    ->required(),
                 Forms\Components\Select::make('lote_id')
                     ->label('Lote')
                     ->relationship('lote', 'nombre')
@@ -67,31 +48,78 @@ class FichaResource extends Resource
                     ->columnSpanFull(),
                     
                 Forms\Components\Section::make('Atributos RADIUS')
-                    ->description('Atributos reply asignados a este usuario')
+                    ->description('Atributos asignados a este usuario')
                     ->schema([
-                        Forms\Components\Repeater::make('radreply')
-                            ->relationship('radreply')
+                        Forms\Components\Section::make('Atributos Heredados del Perfil')
+                            ->description('Atributos definidos en el perfil')
                             ->schema([
-                                Forms\Components\TextInput::make('attribute')
-                                    ->label('Attribute')
-                                    ->required(),
-                                Forms\Components\TextInput::make('op')
-                                    ->label('Op')
-                                    ->default(':=')
-                                    ->required(),
-                                Forms\Components\TextInput::make('value')
-                                    ->label('Value')
-                                    ->required(),
+                                Forms\Components\Repeater::make('perfil_atributos')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('nombre')
+                                            ->label('Attribute')
+                                            ->disabled(),
+                                        Forms\Components\TextInput::make('operador')
+                                            ->label('Op')
+                                            ->disabled(),
+                                        Forms\Components\TextInput::make('valor')
+                                            ->label('Value')
+                                            ->disabled(),
+                                    ])
+                                    ->columns(3)
+                                    ->afterStateHydrated(function ($component, $state, $record) {
+                                        if ($record && $record->perfil && $record->perfil->atributos->isNotEmpty()) {
+                                            $component->state(
+                                                $record->perfil->atributos->map(function ($atributo) {
+                                                    return [
+                                                        'nombre' => $atributo->nombre,
+                                                        'operador' => $atributo->operador,
+                                                        'valor' => $atributo->valor,
+                                                    ];
+                                                })->toArray()
+                                            );
+                                        }
+                                    })
+                                    ->addable(false)
+                                    ->deletable(false)
+                                    ->reorderable(false)
+                                    ->collapsible()
+                                    ->collapsed()
+                                    ->itemLabel(fn (array $state): ?string => $state['nombre'] ?? null)
+                                    ->hidden(fn ($record) => !$record || !$record->perfil || $record->perfil->atributos->isEmpty())
                             ])
-                            ->columns(3)
-                            ->defaultItems(0)
-                            ->addActionLabel('Add Attribute')
                             ->collapsible()
                             ->collapsed()
-                            ->itemLabel(fn (array $state): ?string => $state['attribute'] ?? null)
+                            ->hidden(fn ($record) => !$record || !$record->perfil || $record->perfil->atributos->isEmpty()),
+                        Forms\Components\Section::make('Atributos Personalizados (Radreply)')
+                            ->description('Atributos reply específicos de este usuario')
+                            ->schema([
+                                Forms\Components\Repeater::make('radreply')
+                                    ->relationship('radreply')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('attribute')
+                                            ->label('Attribute')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('op')
+                                            ->label('Op')
+                                            ->default(':=')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('value')
+                                            ->label('Value')
+                                            ->required(),
+                                    ])
+                                    ->columns(3)
+                                    ->defaultItems(0)
+                                    ->addActionLabel('Add Attribute')
+                                    ->collapsible()
+                                    ->collapsed()
+                                    ->itemLabel(fn (array $state): ?string => $state['attribute'] ?? null)
+                            ])
+                            ->collapsible()
+                            ->collapsed(),
                     ])
                     ->hidden(fn ($record) => $record === null)
-                    ->collapsible(),
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 
