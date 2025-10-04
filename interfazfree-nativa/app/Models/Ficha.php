@@ -18,7 +18,6 @@ class Ficha extends Model
         'fecha_expiracion',
         'perfil_id',
         'lote_id',
-        'observaciones',
     ];
 
     protected $casts = [

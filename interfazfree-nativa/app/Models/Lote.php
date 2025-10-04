@@ -16,7 +16,6 @@ class Lote extends Model
         'longitud_usuario',
         'perfil_id',
         'nas_id',
-        'descripcion',
     ];
 
     protected $casts = [

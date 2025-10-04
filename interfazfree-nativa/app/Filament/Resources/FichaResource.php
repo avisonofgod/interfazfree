@@ -19,7 +19,7 @@ class FichaResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 20;
 
     public static function form(Form $form): Form
     {
@@ -42,10 +42,6 @@ class FichaResource extends Resource
                     ->label('Lote')
                     ->relationship('lote', 'nombre')
                     ->nullable(),
-                Forms\Components\Textarea::make('observaciones')
-                    ->label('Observaciones')
-                    ->maxLength(255)
-                    ->columnSpanFull(),
             ]);
     }
 

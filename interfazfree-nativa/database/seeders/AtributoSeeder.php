@@ -42,7 +42,6 @@ class AtributoSeeder extends Seeder
                         [
                             'operador' => $atributo['operador'],
                             'valor' => $atributo['valor'],
-                            'descripcion' => "Atributo {$atributo['nombre']} para perfil {$perfil->nombre}",
                         ]
                     );
                 }

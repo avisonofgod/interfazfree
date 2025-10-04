@@ -19,7 +19,9 @@ class PerfilResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     
-    protected static ?int $navigationSort = 40;
+    protected static ?string $navigationLabel = 'Perfiles';
+    
+    protected static ?int $navigationSort = 30;
 
     public static function form(Form $form): Form
     {

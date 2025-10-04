@@ -19,7 +19,7 @@ class LoteResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {
@@ -43,10 +43,6 @@ class LoteResource extends Resource
                     ->label('NAS')
                     ->relationship('nas', 'nombre')
                     ->nullable(),
-                Forms\Components\Textarea::make('descripcion')
-                    ->label('Descripción')
-                    ->maxLength(255)
-                    ->columnSpanFull(),
             ]);
     }
 

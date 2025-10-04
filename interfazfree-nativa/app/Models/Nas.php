@@ -18,7 +18,6 @@ class Nas extends Model
         'ip',
         'puerto',
         'secreto',
-        'descripcion',
         'activo',
     ];
 
