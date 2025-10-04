@@ -6,6 +6,8 @@ use App\Filament\Resources\LoteResource;
 use App\Models\Config;
 use App\Models\Ficha;
 use App\Models\Radcheck;
+use App\Models\Radreply;
+use App\Models\Perfil;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -46,6 +48,16 @@ class CreateLote extends CreateRecord
                 'op' => ':=',
                 'value' => $password,
             ]);
+            
+            $perfil = Perfil::find($lote->perfil_id);
+            if ($perfil && $perfil->tipo === 'recurrente') {
+                Radreply::create([
+                    'username' => $username,
+                    'attribute' => 'WISPr-Session-Terminate-Time',
+                    'op' => ':=',
+                    'value' => '23:59',
+                ]);
+            }
         }
     }
     

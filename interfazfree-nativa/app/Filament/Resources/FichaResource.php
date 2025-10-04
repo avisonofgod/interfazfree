@@ -7,6 +7,8 @@ use App\Filament\Resources\FichaResource\RelationManagers;
 use App\Models\Ficha;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -37,7 +39,18 @@ class FichaResource extends Resource
                 Forms\Components\Select::make('perfil_id')
                     ->label('Perfil')
                     ->relationship('perfil', 'nombre')
-                    ->required(),
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Set $set) {
+                        $set('wispr_terminate_time', null);
+                    }),
+                Forms\Components\TextInput::make('wispr_terminate_time')
+                    ->label('WISPr-Session-Terminate-Time')
+                    ->default('23:59')
+                    ->helperText('Hora de terminación de sesión (formato HH:MM)')
+                    ->visible(fn (Get $get): bool => 
+                        \App\Models\Perfil::find($get('perfil_id'))?->tipo === 'recurrente'
+                    ),
                 Forms\Components\Select::make('lote_id')
                     ->label('Lote')
                     ->relationship('lote', 'nombre')
@@ -46,6 +59,33 @@ class FichaResource extends Resource
                     ->label('Observaciones')
                     ->maxLength(255)
                     ->columnSpanFull(),
+                    
+                Forms\Components\Section::make('Atributos RADIUS')
+                    ->description('Atributos reply asignados a este usuario')
+                    ->schema([
+                        Forms\Components\Repeater::make('radreply')
+                            ->relationship('radreply')
+                            ->schema([
+                                Forms\Components\TextInput::make('attribute')
+                                    ->label('Attribute')
+                                    ->required()
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('op')
+                                    ->label('Operator')
+                                    ->required()
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('value')
+                                    ->label('Value')
+                                    ->required(),
+                            ])
+                            ->columns(3)
+                            ->addable(false)
+                            ->deletable(false)
+                            ->reorderable(false)
+                            ->defaultItems(0)
+                    ])
+                    ->hidden(fn ($record) => $record === null)
+                    ->collapsible(),
             ]);
     }
 
