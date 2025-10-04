@@ -77,10 +77,6 @@ class LoteResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\Action::make('pdf')
-                    ->label('Imprimir PDF')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn (Lote $record): string => route('lotes.pdf', $record)),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

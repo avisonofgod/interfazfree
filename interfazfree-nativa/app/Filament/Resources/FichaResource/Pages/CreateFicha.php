@@ -26,11 +26,15 @@ class CreateFicha extends CreateRecord
         
         $perfil = Perfil::find($ficha->perfil_id);
         if ($perfil && $perfil->tipo === 'recurrente' && isset($this->data['wispr_terminate_time'])) {
+            $datetimeValue = $this->data['wispr_terminate_time'];
+            if ($datetimeValue instanceof \Carbon\Carbon) {
+                $datetimeValue = $datetimeValue->format('Y-m-d\TH:i:s');
+            }
             Radreply::create([
                 'username' => $ficha->username,
                 'attribute' => 'WISPr-Session-Terminate-Time',
                 'op' => ':=',
-                'value' => $this->data['wispr_terminate_time'],
+                'value' => $datetimeValue,
             ]);
         }
     }

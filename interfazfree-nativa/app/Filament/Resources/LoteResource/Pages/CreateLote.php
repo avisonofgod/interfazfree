@@ -55,7 +55,7 @@ class CreateLote extends CreateRecord
                     'username' => $username,
                     'attribute' => 'WISPr-Session-Terminate-Time',
                     'op' => ':=',
-                    'value' => '23:59',
+                    'value' => now()->addDay()->setTime(20, 0, 0)->format('Y-m-d\TH:i:s'),
                 ]);
             }
         }
