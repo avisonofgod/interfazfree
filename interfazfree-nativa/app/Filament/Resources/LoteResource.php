@@ -37,16 +37,16 @@ class LoteResource extends Resource
                     ->label('Longitud de Usuario')
                     ->required()
                     ->numeric()
-                    ->minValue(4)
+                    ->minValue(3)
                     ->maxValue(32)
-                    ->default(8),
+                    ->default(4),
                 Forms\Components\TextInput::make('longitud_password')
                     ->label('Longitud de Contraseña')
                     ->required()
                     ->numeric()
-                    ->minValue(4)
+                    ->minValue(3)
                     ->maxValue(32)
-                    ->default(8),
+                    ->default(3),
                 Forms\Components\Select::make('perfil_id')
                     ->label('Perfil')
                     ->relationship('perfil', 'nombre')

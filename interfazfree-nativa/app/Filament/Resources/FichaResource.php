@@ -32,15 +32,6 @@ class FichaResource extends Resource
                     ->label('Contraseña')
                     ->required()
                     ->maxLength(64),
-                Forms\Components\Select::make('estado')
-                    ->label('Estado')
-                    ->options([
-                        'sin_usar' => 'Sin Usar',
-                        'activa' => 'Activa',
-                        'caducada' => 'Caducada',
-                    ])
-                    ->default('sin_usar')
-                    ->required(),
                 Forms\Components\Select::make('perfil_id')
                     ->label('Perfil')
                     ->relationship('perfil', 'nombre')
@@ -49,10 +40,6 @@ class FichaResource extends Resource
                     ->label('Lote')
                     ->relationship('lote', 'nombre')
                     ->nullable(),
-                Forms\Components\DateTimePicker::make('fecha_inicio')
-                    ->label('Fecha de Inicio'),
-                Forms\Components\DateTimePicker::make('fecha_expiracion')
-                    ->label('Fecha de Expiración'),
                 Forms\Components\Textarea::make('observaciones')
                     ->label('Observaciones')
                     ->maxLength(255)
