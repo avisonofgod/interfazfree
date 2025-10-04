@@ -22,12 +22,15 @@ class CreateLote extends CreateRecord
             ? $config->allowed_characters 
             : 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         
+        $longitudUsuario = $config ? $config->longitud_usuario : 4;
+        $longitudPassword = $config ? $config->longitud_password : 3;
+        
         for ($i = 0; $i < $lote->cantidad; $i++) {
             do {
-                $username = $this->generateRandomString($allowedChars, $lote->longitud_usuario);
+                $username = $this->generateRandomString($allowedChars, $longitudUsuario);
             } while (Ficha::where('username', $username)->exists());
             
-            $password = $this->generateRandomString($allowedChars, $lote->longitud_password);
+            $password = $this->generateRandomString($allowedChars, $longitudPassword);
             
             $ficha = Ficha::create([
                 'username' => $username,

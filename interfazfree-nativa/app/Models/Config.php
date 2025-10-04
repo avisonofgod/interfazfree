@@ -12,6 +12,8 @@ class Config extends Model
     protected $fillable = [
         'allowed_characters',
         'encryption_type',
+        'longitud_usuario',
+        'longitud_password',
     ];
 
     protected $casts = [

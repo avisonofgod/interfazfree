@@ -14,6 +14,8 @@ class ConfigSeeder extends Seeder
             [
                 'allowed_characters' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
                 'encryption_type' => 'cleartext',
+                'longitud_usuario' => 4,
+                'longitud_password' => 3,
             ]
         );
     }

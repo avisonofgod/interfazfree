@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('allowed_characters')->default('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
             $table->enum('encryption_type', ['cleartext', 'bcrypt', 'argon2'])->default('cleartext');
+            $table->integer('longitud_usuario')->default(4);
+            $table->integer('longitud_password')->default(3);
             $table->timestamps();
         });
     }

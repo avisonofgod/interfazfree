@@ -42,6 +42,22 @@ class ConfigResource extends Resource
                     ])
                     ->default('cleartext')
                     ->required(),
+                Forms\Components\TextInput::make('longitud_usuario')
+                    ->label('Longitud de Usuario')
+                    ->required()
+                    ->numeric()
+                    ->minValue(3)
+                    ->maxValue(32)
+                    ->default(4)
+                    ->helperText('Longitud por defecto para generar usuarios'),
+                Forms\Components\TextInput::make('longitud_password')
+                    ->label('Longitud de Contraseña')
+                    ->required()
+                    ->numeric()
+                    ->minValue(3)
+                    ->maxValue(32)
+                    ->default(3)
+                    ->helperText('Longitud por defecto para generar contraseñas'),
             ]);
     }
 
