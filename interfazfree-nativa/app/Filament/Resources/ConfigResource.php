@@ -77,6 +77,12 @@ class ConfigResource extends Resource
                         'argon2' => 'info',
                         default => 'gray',
                     }),
+                Tables\Columns\TextColumn::make('longitud_usuario')
+                    ->label('Longitud de Usuario')
+                    ->alignCenter(),
+                Tables\Columns\TextColumn::make('longitud_password')
+                    ->label('Longitud de Contraseña')
+                    ->alignCenter(),
             ])
             ->filters([])
             ->actions([
